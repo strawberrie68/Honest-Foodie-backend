@@ -27,7 +27,7 @@ const recipeSchema = mongoose.Schema(
     isRecommended: {type: Map, of: Boolean},
     comments: [{type: mongoose.Schema.Types.ObjectId, ref: "Comments"}],
     review: [{type: mongoose.Schema.Types.ObjectId, ref: "Review"}],
-    tags: [{type: string}],
+    tags: {type: Array, default: []},
   },
   {
     timestamps: true,
