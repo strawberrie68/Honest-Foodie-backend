@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const schema = mongoose.Schema(
+const recipeSchema = mongoose.Schema(
   {
     title: {
       type: String,
@@ -8,9 +8,9 @@ const schema = mongoose.Schema(
     },
     picturePath: {
       type: String,
-      required: true,
+      default: "",
     },
-    servings: {type: Number},
+    servings: Number,
     steps: [{type: String, required: true}],
     ingredients: [
       {
@@ -21,10 +21,10 @@ const schema = mongoose.Schema(
     ],
     time: {hours: {type: Number}, minutes: {type: Number}},
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      type: String,
+      required: true,
     },
-    isRecommended: {},
+    isRecommended: {type: Map, of: Boolean},
     comments: [{type: mongoose.Schema.Types.ObjectId, ref: "Comments"}],
     review: [{type: mongoose.Schema.Types.ObjectId, ref: "Review"}],
     tags: [{type: string}],
@@ -34,4 +34,4 @@ const schema = mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Recipe", schema);
+module.exports = mongoose.model("Recipe", RecipeSchema);
