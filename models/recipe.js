@@ -11,18 +11,18 @@ const recipeSchema = mongoose.Schema(
       default: "",
     },
     servings: Number,
-    steps: [{type: String, required: true}],
+    steps: {type: Array, default: []},
     ingredients: [
       {
         ingredient: {type: String, required: true},
-        unit: {type: Number, required: true},
+        unit: {type: String, required: true},
         amount: {type: Number, required: true},
       },
     ],
     time: {hours: {type: Number}, minutes: {type: Number}},
     userId: {
       type: String,
-      required: true,
+      // required: true,
     },
     isRecommended: {type: Map, of: Boolean},
     comments: [{type: mongoose.Schema.Types.ObjectId, ref: "Comments"}],
