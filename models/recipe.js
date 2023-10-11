@@ -11,12 +11,23 @@ const recipeSchema = mongoose.Schema(
       default: "",
     },
     servings: Number,
-    steps: {type: Array, default: []},
+    // steps: {type: Array, default: []},
+    steps: [
+      {
+        stepName: {type: String},
+        step: [{type: String}],
+      },
+    ],
     ingredients: [
       {
-        ingredient: {type: String, required: true},
-        unit: {type: String, required: true},
-        amount: {type: Number, required: true},
+        ingredientsFor: String,
+        allIngredients: [
+          {
+            ingredient: {type: String, required: true},
+            unit: {type: String},
+            amount: {type: Number, required: true},
+          },
+        ],
       },
     ],
     time: {hours: {type: Number}, minutes: {type: Number}},
