@@ -9,8 +9,9 @@ const reviewSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  timesMade: Number,
+  timesMade: {type: Number, default: 1},
   rating: Number,
+  picturePath: String,
 });
 
 const Review = mongoose.model("Review", reviewSchema);

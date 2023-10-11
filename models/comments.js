@@ -10,6 +10,10 @@ const commentsSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    text: {
+      type: String,
+      required: true,
+    },
     parentId: {
       type: String,
       default: null,
