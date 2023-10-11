@@ -30,6 +30,7 @@ app.use(express.json());
 
 app.use("/api/recipe", recipeRoutes);
 app.use("/api/users", usersRoutes);
+app.use("/api/auth", loginRoutes);
 
 // app.use(middleware.unknownEndpoint);
 // app.use(middleware.errorHandler);
