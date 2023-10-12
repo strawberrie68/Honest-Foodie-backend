@@ -24,6 +24,7 @@ const userSchema = mongoose.Schema({
     type: String,
     default: "",
   },
+  recipes: [{type: mongoose.Schema.Types.ObjectId, ref: "Recipe"}],
   savedRecipe: [{type: mongoose.Schema.Types.ObjectId, ref: "Recipe"}],
   reviews: [{type: mongoose.Schema.Types.ObjectId, ref: "Review"}],
   flavorProfile: {type: Array, default: []},
