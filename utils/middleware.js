@@ -1,4 +1,7 @@
 const logger = require("./logger");
+const jwt = require("jsonwebtoken");
+
+const User = require("../models/User");
 
 const unknownEndpoint = (request, response) => {
   response.status(404).send({error: "unknown endpoint"});
