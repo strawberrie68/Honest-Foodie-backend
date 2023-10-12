@@ -3,8 +3,8 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 module.exports = {
-  login: async (req, res) => {
-    const {username, password} = req.body;
+  login: async (request, response) => {
+    const {username, password} = request.body;
 
     const user = await User.findOne({username});
     const passwordCorrect =
@@ -23,6 +23,8 @@ module.exports = {
 
     const token = jwt.sign(userForToken, process.env.SECRET);
 
-    res.status(200).send({token, username: user.username, name: user.name});
+    response
+      .status(200)
+      .send({token, username: user.username, name: user.name});
   },
 };
