@@ -32,7 +32,6 @@ const recipeSchema = mongoose.Schema(
     time: {hours: {type: Number}, minutes: {type: Number}},
     userId: {
       type: String,
-      // required: true,
     },
     isRecommended: {type: Map, of: Boolean},
     comments: [{type: mongoose.Schema.Types.ObjectId, ref: "Comments"}],

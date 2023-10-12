@@ -1,11 +1,13 @@
 const mongoose = require("mongoose");
 const supertest = require("supertest");
 const app = require("../app");
+const {initialRecipes, initialUser} = require("./initialData");
 
 const api = supertest(app);
 const Recipe = require("../models/Recipe");
 const Comments = require("../models/Comments");
 const Review = require("../models/Review");
+const User = require("../models/User");
 
 test("recipes are returned as json", async () => {
   await api
