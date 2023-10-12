@@ -1,4 +1,6 @@
 const express = require("express");
+const {userExtractor} = require("../utils/middleware");
+
 const {
   getFeedRecipes,
   getUserRecipes,
@@ -18,18 +20,17 @@ const router = express.Router();
 router.get("/", getFeedRecipes);
 router.get("/:id", getRecipe);
 router.get("/:userId/recipes", getUserRecipes);
-// router.get("/:userId/recipes/review", getSavedRecipe);
 
 /* POST */
-router.post("/add", createRecipe);
-router.post("/:id", createReview);
-router.post("/:id/comment", createComment);
+router.post("/add", userExtractor, createRecipe);
+router.post("/:id", userExtractor, createReview);
+router.post("/:id/comment", userExtractor, createComment);
 
 // /* UPDATE */
-// router.patch('/recipe/save/:id', addToSaveRecipe)
-// router.patch("/recipe/edit/:id", updateRecipe);
+router.patch("/:id/save", userExtractor, addToSaveRecipe);
+// router.patch("/edit/:id", updateRecipe);
 
 // /* DELETE */
-// router.delete("/recipe/:id", deleteRecipe);
+router.delete("/delete/:id", userExtractor, deleteRecipe);
 
 module.exports = router;

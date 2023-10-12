@@ -11,7 +11,6 @@ const recipeSchema = mongoose.Schema(
       default: "",
     },
     servings: Number,
-    // steps: {type: Array, default: []},
     steps: [
       {
         stepName: {type: String},
