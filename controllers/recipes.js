@@ -38,6 +38,9 @@ module.exports = {
 
     const createdRecipe = await recipe.save();
     user.recipes = user.recipes.concat(createdRecipe._id);
+
+    // createdRecipe = await Recipe.findById(createdRecipe._id)
+
     response.status(201).json(createdRecipe);
   },
 
