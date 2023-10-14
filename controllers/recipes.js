@@ -1,6 +1,6 @@
 const Recipe = require("../models/Recipe");
 const Review = require("../models/Review");
-const Comments = require("../models/Comments");
+const Comment = require("../models/Comments");
 const User = require("../models/User");
 
 module.exports = {
@@ -65,12 +65,13 @@ module.exports = {
 
     response.status(201).json(createdReview);
   },
+
   createComment: async (request, response) => {
     const recipe = await Recipe.findById(request.params.id);
     const user = request.user;
     const {parentId, text} = request.body;
 
-    const comment = new Comments({
+    const comment = new Comment({
       recipeId: recipe._id,
       userId: user._id,
       parentId,
@@ -94,6 +95,7 @@ module.exports = {
       response.status(404).json({message: err.message});
     }
   },
+
   getRecipe: async (request, response) => {
     try {
       const recipe = await Recipe.findById(request.params.id)
