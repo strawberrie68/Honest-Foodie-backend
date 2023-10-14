@@ -31,7 +31,7 @@ module.exports = {
 
     const user = request.user;
     if (!user) {
-      return responseponse.status(401).json({error: "operation not permitted"});
+      return response.status(401).json({error: "operation not permitted"});
     }
 
     recipe.userId = user._id;
@@ -39,9 +39,9 @@ module.exports = {
     const createdRecipe = await recipe.save();
     user.recipes = user.recipes.concat(createdRecipe._id);
 
-    // createdRecipe = await Recipe.findById(createdRecipe._id)
+    const newRecipe = await Recipe.findById(createdRecipe._id);
 
-    response.status(201).json(createdRecipe);
+    response.status(201).json(newRecipe);
   },
 
   createReview: async (request, response) => {
