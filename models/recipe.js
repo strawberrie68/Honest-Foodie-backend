@@ -10,7 +10,7 @@ const recipeSchema = mongoose.Schema(
       type: String,
       default: "",
     },
-    servings: Number,
+    servings: {type: Number, required: true},
     steps: [
       {
         stepName: {type: String},
@@ -42,6 +42,14 @@ const recipeSchema = mongoose.Schema(
     timestamps: true,
   }
 );
+
+// recipeSchema.set("toJSON", {
+//   transform: (document, returnedObject) => {
+//     returnedObject.id = returnedObject._id.toString();
+//     delete returnedObject._id;
+//     delete returnedObject.__v;
+//   },
+// });
 
 const Recipe = mongoose.model("Recipe", recipeSchema);
 module.exports = Recipe;

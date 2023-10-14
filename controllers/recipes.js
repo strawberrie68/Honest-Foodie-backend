@@ -1,6 +1,6 @@
 const Recipe = require("../models/Recipe");
 const Review = require("../models/Review");
-const Comments = require("../models/Comments");
+const Comment = require("../models/Comments");
 const User = require("../models/User");
 
 module.exports = {
@@ -31,13 +31,16 @@ module.exports = {
 
     const user = request.user;
     if (!user) {
-      return responseponse.status(401).json({error: "operation not permitted"});
+      return response.status(401).json({error: "operation not permitted"});
     }
 
     recipe.userId = user._id;
 
-    const createdRecipe = await recipe.save();
+    let createdRecipe = await recipe.save();
     user.recipes = user.recipes.concat(createdRecipe._id);
+
+    createdRecipe = await Recipe.findById(createdRecipe._id);
+
     response.status(201).json(createdRecipe);
   },
 
@@ -62,12 +65,13 @@ module.exports = {
 
     response.status(201).json(createdReview);
   },
+
   createComment: async (request, response) => {
     const recipe = await Recipe.findById(request.params.id);
     const user = request.user;
     const {parentId, text} = request.body;
 
-    const comment = new Comments({
+    const comment = new Comment({
       recipeId: recipe._id,
       userId: user._id,
       parentId,
@@ -91,6 +95,7 @@ module.exports = {
       response.status(404).json({message: err.message});
     }
   },
+
   getRecipe: async (request, response) => {
     try {
       const recipe = await Recipe.findById(request.params.id)
@@ -124,7 +129,7 @@ module.exports = {
 
   /* UPDATE */
 
-  addToSaveRecipe: async (request, response) => {
+  toggleSavedRecipe: async (request, response) => {
     try {
       const {id} = request.params;
 
@@ -148,6 +153,40 @@ module.exports = {
     }
   },
 
+  updateRecipe: async (request, response) => {
+    const {
+      title,
+      picturePath,
+      servings,
+      steps,
+      ingredients,
+      time,
+      userId,
+      tags,
+    } = request.body;
+
+    let updatedRecipe = await Recipe.findByIdAndUpdate(
+      request.params.id,
+      {
+        title,
+        picturePath,
+        servings,
+        steps,
+        ingredients,
+        time,
+        userId,
+        tags,
+      },
+      {new: true}
+    );
+
+    updatedRecipe = await Recipe.findById(updatedRecipe._id)
+      .populate("comments")
+      .populate("review");
+
+    response.json(updatedRecipe);
+  },
+
   /* DELETE */
   deleteRecipe: async (request, response) => {
     const recipe = await Recipe.findById(request.params.id);
@@ -163,7 +202,7 @@ module.exports = {
     );
 
     await user.save();
-    await blog.remove();
+    await recipe.remove();
 
     response.status(204).end();
   },

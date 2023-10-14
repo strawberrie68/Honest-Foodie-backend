@@ -6,7 +6,7 @@ const {
   getUserRecipes,
   getRecipe,
   getSavedRecipe,
-  addToSaveRecipe,
+  toggleSavedRecipe,
   createRecipe,
   createReview,
   createComment,
@@ -18,19 +18,19 @@ const router = express.Router();
 
 /* READ */
 router.get("/", getFeedRecipes);
-router.get("/:id", getRecipe);
+router.get("/:recipeId", getRecipe);
 router.get("/:userId/recipes", getUserRecipes);
 
 /* POST */
-router.post("/add", userExtractor, createRecipe);
-router.post("/:id", userExtractor, createReview);
-router.post("/:id/comment", userExtractor, createComment);
+router.post("/create", userExtractor, createRecipe);
+router.post("/:recipeId", userExtractor, createReview);
+router.post("/:recipeId/comment", userExtractor, createComment);
 
-// /* UPDATE */
-router.patch("/:id/save", userExtractor, addToSaveRecipe);
-// router.patch("/edit/:id", updateRecipe);
+/* UPDATE */
+router.patch("/:recipeId/save", userExtractor, toggleSavedRecipe);
+router.patch("/:recipeId/edit", updateRecipe);
 
 // /* DELETE */
-router.delete("/delete/:id", userExtractor, deleteRecipe);
+router.delete("/delete/:recipeId", userExtractor, deleteRecipe);
 
 module.exports = router;
