@@ -29,6 +29,14 @@ module.exports = {
   },
 
   /* READ */
+  getUsers: async (request, response) => {
+    try {
+      const user = await User.find({});
+      response.status(200).json(user);
+    } catch (err) {
+      response.status(404).json({message: err.message});
+    }
+  },
 
   getUser: async (request, response) => {
     try {
@@ -93,9 +101,7 @@ module.exports = {
       const isFollowing = user.following.includes(userfollowingId);
 
       if (!user) {
-        return responseponse
-          .status(401)
-          .json({error: "operation not permitted"});
+        return response.status(401).json({error: "operation not permitted"});
       }
 
       if (isFollowing) {
