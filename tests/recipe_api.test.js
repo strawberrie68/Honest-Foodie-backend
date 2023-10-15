@@ -55,22 +55,19 @@ describe("recipes api", () => {
     test("able to return user's recipe using userId", async () => {
       const user = await usersInDb();
       const userID = user.map((r) => r.id);
-
       const recipe = initialRecipes[0];
 
       await api.post("/api/recipe/add").send(recipe);
-
       const newResponse = await api.get(`/api/recipe/${userID}/recipes`);
 
-      expect(recipe.title).toContain("strawberry shortcake");
+      expect(newResponse.title).toContain("strawberry shortcake");
     });
 
     test("able to get a specfic recipe using recipeId", async () => {
-      const recipe = await recipesInDb();
+      const recipes = await recipesInDb();
+      const recipeId = recipes[0]._id.toString();
 
-      const recipeIds = recipe.map((r) => r._id.toString());
-
-      const response = await api.get(`/api/recipe/${recipeIds[0]}`);
+      const response = await api.get(`/api/recipe/${recipeId}`);
 
       expect(response.body.title).toContain("strawberry shortcake");
     });
