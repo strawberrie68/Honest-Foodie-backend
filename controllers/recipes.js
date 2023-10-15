@@ -87,6 +87,8 @@ module.exports = {
 
   /* READ */
 
+  /* Returns all recipes to be used in the feed */
+
   getFeedRecipes: async (request, response) => {
     try {
       const recipe = await Recipe.find();
@@ -95,6 +97,8 @@ module.exports = {
       response.status(404).json({message: err.message});
     }
   },
+
+  /* Returns one specfic recipe */
 
   getRecipe: async (request, response) => {
     try {

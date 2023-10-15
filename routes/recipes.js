@@ -30,7 +30,7 @@ router.post("/:recipeId/comment", userExtractor, createComment);
 router.patch("/:recipeId/save", userExtractor, toggleSavedRecipe);
 router.patch("/:recipeId/edit", updateRecipe);
 
-// /* DELETE */
-router.delete("/delete/:recipeId", userExtractor, deleteRecipe);
+/* DELETE */
+router.delete("/:recipeId/delete", userExtractor, deleteRecipe);
 
 module.exports = router;
