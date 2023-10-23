@@ -8,7 +8,7 @@ const {
   getUserFollowers,
   getUserFollowings,
   updateUser,
-  addRemoveFollowing,
+  toggleFollowing,
 } = require("../controllers/user");
 
 const router = express.Router();
@@ -17,12 +17,12 @@ router.post("/", registerUser);
 
 /* READ */
 router.get("/", getUsers);
-router.get("/:iserId", getUser);
+router.get("/:userId", getUser);
 router.get("/:userId/followers", getUserFollowers);
 router.get("/:userId/followings", getUserFollowings);
 
 /* UPDATE */
 router.patch("/:userId", userExtractor, updateUser);
-router.patch("/user/:followingId", userExtractor, addRemoveFollowing);
+router.patch("/user/:userfollowingId", userExtractor, toggleFollowing);
 
 module.exports = router;
