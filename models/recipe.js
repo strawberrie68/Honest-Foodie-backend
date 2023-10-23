@@ -17,6 +17,7 @@ const recipeSchema = mongoose.Schema(
         step: [{type: String}],
       },
     ],
+
     ingredients: [
       {
         ingredient: {type: String, required: true},
@@ -25,6 +26,7 @@ const recipeSchema = mongoose.Schema(
         section: {type: String},
       },
     ],
+
     time: {hours: {type: Number}, minutes: {type: Number}},
     userId: {
       type: String,
