@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const supertest = require("supertest");
 const app = require("../app");
-const {initialRecipes, initialUser} = require("./initialData");
+const { initialRecipes, initialUser } = require("./initialData");
 
 const api = supertest(app);
 const Recipe = require("../models/Recipe");
