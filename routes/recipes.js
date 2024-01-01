@@ -1,11 +1,11 @@
 const express = require("express");
-const {userExtractor} = require("../utils/middleware");
+const { userExtractor } = require("../utils/middleware");
 
 const {
   getFeedRecipes,
   getUserRecipes,
   getRecipe,
-  getSavedRecipe,
+  getSavedRecipes,
   addToSaveRecipe,
   createRecipe,
   createReview,
@@ -27,7 +27,7 @@ router.post("/:id", userExtractor, createReview);
 router.post("/:id/comment", userExtractor, createComment);
 
 // /* UPDATE */
-router.patch("/:id/save", userExtractor, addToSaveRecipe);
+router.patch("/:id/save", userExtractor, addToSaveRecipes);
 // router.patch("/edit/:id", updateRecipe);
 
 // /* DELETE */
