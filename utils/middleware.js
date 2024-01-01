@@ -4,52 +4,43 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 const unknownEndpoint = (request, response) => {
-  response.status(404).send({error: "unknown endpoint"});
+  response.status(404).send({ error: "unknown endpoint" });
 };
 
 const errorHandler = (error, request, response, next) => {
   logger.error(error.message);
 
   if (error.name === "CastError") {
-    return response.status(400).send({error: "malformatted id"});
+    return response.status(400).send({ error: "malformatted id" });
   } else if (error.name === "ValidationError") {
-    return response.status(400).json({error: error.message});
+    return response.status(400).json({ error: error.message });
   }
 
   next(error);
 };
 
-const getTokenFrom = (request) => {
-  const authorization = request.get("authorization");
-  if (authorization && authorization.toLowerCase().startsWith("bearer ")) {
-    return authorization.substring(7);
-  }
-  return null;
-};
+const verifyToken = async (req, res, next) => {
+  try {
+    let token = req.header("Authorization");
 
-const tokenExtractor = (request, response, next) => {
-  request.token = getTokenFrom(request);
-  next();
-};
-
-const userExtractor = async (request, response, next) => {
-  const token = getTokenFrom(request);
-
-  if (token) {
-    const decodedToken = jwt.verify(token, process.env.SECRET);
-    if (!decodedToken.id) {
-      return response.status(401).json({error: "token invalid"});
+    if (!token) {
+      return res.status(403).send("Access Denied");
     }
 
-    request.user = await User.findById(decodedToken.id);
-  }
+    if (token.startsWith("Bearer ")) {
+      token = token.slice(7, token.length).trimLeft();
+    }
 
-  next();
+    const verified = jwt.verify(token, process.env.SECRET);
+    req.user = verified;
+    next();
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
 module.exports = {
+  verifyToken,
   unknownEndpoint,
   errorHandler,
-  tokenExtractor,
-  userExtractor,
 };
