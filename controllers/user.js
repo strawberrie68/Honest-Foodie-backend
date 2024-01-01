@@ -1,61 +1,95 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const recipes = require("./recipes");
+
+// const populateObj = {
+//   path: "recipes",
+//   populate: {
+//     path: "userId",
+//     select: "firstName",
+//   },
+//   select: "recipes",
+// };
 
 module.exports = {
   /* CREATE */
   registerUser: async (request, response) => {
-    const {username, firstName, lastName, email, password} = request.body;
+    try {
+      const { username, firstName, lastName, email, password } = request.body;
 
-    if (!password || password.length < 3) {
-      return response.status(400).json({
-        error: "`password` is shorter than the minimum allowed length (3)",
+      const existingUser = await User.findOne({ username });
+      if (existingUser) {
+        console.log("User already exists:", username); // Add this line
+        return response.status(400).json({
+          error: "Username already exists",
+        });
+      }
+
+      if (!password || password.length < 3) {
+        return response.status(400).json({
+          error: "`password` is shorter than the minimum allowed length (3)",
+        });
+      }
+
+      const saltRounds = 10;
+      const passwordHash = await bcrypt.hash(password, saltRounds);
+
+      const newUser = new User({
+        username,
+        firstName,
+        lastName,
+        password: passwordHash,
+        email,
       });
+
+      const savedUser = await newUser.save();
+      response.status(201).json(savedUser);
+    } catch (err) {
+      console.log("Error registering user:", err); // Add this line
+      response.status(500).json({ message: err.message });
     }
-
-    const saltRounds = 10;
-    const passwordHash = await bcrypt.hash(password, saltRounds);
-
-    const user = new User({
-      username,
-      firstName,
-      lastName,
-      passwordHash,
-      email,
-    });
-
-    const savedUser = await user.save();
-
-    response.status(201).json(savedUser);
   },
 
   /* READ */
 
   getUser: async (request, response) => {
     try {
-      const user = await User.findById(request.params.id)
+      const { userId } = request.params;
+      const user = await User.findById(userId)
         .populate("recipes", {
           title: 1,
           picturePath: 1,
+          userId: 1,
+          description: 1,
         })
+        // .populate({
+        //   path: "recipes",
+        //   populate: {
+        //     path: "userId",
+        //     model: "User",
+        //     select: "firstName",
+        //   },
+        // })
         .populate("reviews", {
           recipeId: 1,
           timesMade: 1,
           rating: 1,
           picturePath: 1,
-        })
-        .populate("user", {following: 1, followers: 1});
+        });
+
+      // .populate("user", {following: 1, followers: 1});
       response.status(200).json(user);
     } catch (err) {
-      response.status(404).json({message: err.message});
+      response.status(404).json({ message: err.message });
     }
   },
 
   getUserFollowers: async (request, response) => {
     try {
-      const followers = await User.findById(request.params.id).populate(
-        "user",
-        {followers: 1}
-      );
+      const { id } = request.params;
+      const followers = await User.findById(id).populate("user", {
+        followers: 1,
+      });
       response.status(200).json(followers);
     } catch (err) {
       console.log(err);
@@ -64,10 +98,10 @@ module.exports = {
 
   getUserFollowings: async (request, response) => {
     try {
-      const following = await User.findById(request.params.id).populate(
-        "user",
-        {following: 1}
-      );
+      const { id } = request.params;
+      const following = await User.findById(id).populate("user", {
+        following: 1,
+      });
       response.status(200).json(following);
     } catch (err) {
       console.log(err);
@@ -84,7 +118,7 @@ module.exports = {
 
   addRemoveFollowing: async (request, response) => {
     try {
-      const {userfollowingId} = request.params;
+      const { userfollowingId } = request.params;
       const userId = request.user._id;
 
       const user = await User.find(userId);
@@ -95,7 +129,7 @@ module.exports = {
       if (!user) {
         return responseponse
           .status(401)
-          .json({error: "operation not permitted"});
+          .json({ error: "operation not permitted" });
       }
 
       if (isFollowing) {
@@ -115,8 +149,8 @@ module.exports = {
         user.following.map((id) => User.findById(id))
       );
       const formattedFollowings = following.map(
-        ({_id, firstName, lastName, username, picturePath}) => {
-          return {_id, firstName, lastName, username, picturePath};
+        ({ _id, firstName, lastName, username, picturePath }) => {
+          return { _id, firstName, lastName, username, picturePath };
         }
       );
       res.status(200).json(formattedFollowings);
@@ -124,7 +158,7 @@ module.exports = {
       response.status(200).json(updatedFollowing);
       response.status(200).json(updatedFollowers);
     } catch (err) {
-      response.status(404).json({message: err.message});
+      response.status(404).json({ message: err.message });
     }
   },
 };

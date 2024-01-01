@@ -1,5 +1,5 @@
 const express = require("express");
-const {userExtractor} = require("../utils/middleware");
+const { userExtractor } = require("../utils/middleware");
 
 const {
   registerUser,
@@ -15,7 +15,7 @@ const router = express.Router();
 router.post("/", registerUser);
 
 /* READ */
-router.get("/:id", getUser);
+router.get("/:userId", getUser);
 router.get("/:id/followers", getUserFollowers);
 router.get("/:id/followings", getUserFollowings);
 
