@@ -13,8 +13,8 @@ const recipeSchema = mongoose.Schema(
     servings: Number,
     steps: [
       {
-        stepName: {type: String},
-        step: [{type: String}],
+        stepName: { type: String },
+        step: [{ type: String }],
       },
     ],
     ingredients: [
@@ -22,21 +22,20 @@ const recipeSchema = mongoose.Schema(
         ingredientsFor: String,
         allIngredients: [
           {
-            ingredient: {type: String, required: true},
-            unit: {type: String},
-            amount: {type: Number, required: true},
+            ingredient: { type: String, required: true },
+            unit: { type: String },
+            amount: { type: Number, required: true },
           },
         ],
       },
     ],
-    time: {hours: {type: Number}, minutes: {type: Number}},
-    userId: {
-      type: String,
-    },
-    isRecommended: {type: Map, of: Boolean},
-    comments: [{type: mongoose.Schema.Types.ObjectId, ref: "Comments"}],
-    review: [{type: mongoose.Schema.Types.ObjectId, ref: "Review"}],
-    tags: {type: Array, default: []},
+    time: { hours: { type: Number }, minutes: { type: Number } },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    isRecommended: { type: Map, of: Boolean },
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comments" }],
+    review: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
+    tags: { type: Array, default: [] },
+    description: String,
   },
   {
     timestamps: true,
