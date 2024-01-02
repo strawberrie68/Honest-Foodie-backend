@@ -31,7 +31,7 @@ module.exports = {
 
     const user = request.user;
     if (!user) {
-      return responseponse.status(401).json({error: "operation not permitted"});
+      return response.status(401).json({ error: "operation not permitted" });
     }
 
     recipe.userId = user._id;
@@ -45,7 +45,7 @@ module.exports = {
     const recipe = await Recipe.findById(request.params.id);
     const user = request.user;
 
-    const {timesMade, rating, picturePath} = request.body;
+    const { timesMade, rating, picturePath } = request.body;
 
     const review = new Review({
       recipeId: recipe._id,
@@ -65,7 +65,7 @@ module.exports = {
   createComment: async (request, response) => {
     const recipe = await Recipe.findById(request.params.id);
     const user = request.user;
-    const {parentId, text} = request.body;
+    const { parentId, text } = request.body;
 
     const comment = new Comments({
       recipeId: recipe._id,
@@ -88,7 +88,7 @@ module.exports = {
       const recipe = await Recipe.find();
       response.status(200).json(recipe);
     } catch (err) {
-      response.status(404).json({message: err.message});
+      response.status(404).json({ message: err.message });
     }
   },
   getRecipe: async (request, response) => {
@@ -100,11 +100,11 @@ module.exports = {
           rating: 1,
           picturePath: 1,
         })
-        .populate("comments", {userId: 1, parentId: 1, text: 1});
+        .populate("comments", { userId: 1, parentId: 1, text: 1 });
 
       response.status(200).json(recipe);
     } catch (err) {
-      response.status(404).json({message: err.message});
+      response.status(404).json({ message: err.message });
     }
   },
 
@@ -124,27 +124,27 @@ module.exports = {
 
   /* UPDATE */
 
-  addToSaveRecipe: async (request, response) => {
+  addToSaveRecipes: async (request, response) => {
     try {
-      const {id} = request.params;
+      const { id } = request.params;
 
       const user = await User.findById(request.user._id);
-      const isLiked = user.savedRecipe.get(id);
+      const isLiked = user.savedRecipes.get(id);
 
       if (isLiked) {
-        user.savedRecipe.delete(id);
+        user.savedRecipes.delete(id);
       } else {
-        user.savedRecipe.set(id, true);
+        user.savedRecipes.set(id, true);
       }
 
       const updatedUser = await User.findByIdAndUpdate(
         id,
-        {savedRecipe: user.savedRecipe},
-        {new: true}
+        { savedRecipes: user.savedRecipes },
+        { new: true }
       );
       response.status(200).json(updatedUser);
     } catch (err) {
-      res.status(404).json({message: err.message});
+      res.status(404).json({ message: err.message });
     }
   },
 
@@ -155,7 +155,7 @@ module.exports = {
     const user = request.user;
 
     if (!user || recipe.userId.toString() !== user.id.toString()) {
-      return response.status(401).json({error: "operation not permitted"});
+      return response.status(401).json({ error: "operation not permitted" });
     }
 
     user.recipes = user.recipes.filter(
