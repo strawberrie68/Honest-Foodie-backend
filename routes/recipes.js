@@ -1,5 +1,5 @@
 const express = require("express");
-const {userExtractor} = require("../utils/middleware");
+const { verifyToken, userExtractor } = require("../utils/middleware");
 
 const {
   getFeedRecipes,
@@ -22,13 +22,13 @@ router.get("/:recipeId", getRecipe);
 router.get("/:userId/recipes", getUserRecipes);
 
 /* POST */
-router.post("/create", userExtractor, createRecipe);
+router.post("/add", userExtractor, createRecipe);
 router.post("/:recipeId", userExtractor, createReview);
 router.post("/:recipeId/comment", userExtractor, createComment);
 
 /* UPDATE */
 router.patch("/:recipeId/save", userExtractor, toggleSavedRecipe);
-router.patch("/:recipeId/edit", updateRecipe);
+router.patch("/:recipeId/edit", userExtractor, updateRecipe);
 
 /* DELETE */
 router.delete("/:recipeId/delete", userExtractor, deleteRecipe);
