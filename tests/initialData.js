@@ -1,9 +1,4 @@
-const Recipe = require("../models/Recipe");
-const Comments = require("../models/Comments");
-const Review = require("../models/Review");
-const User = require("../models/user");
-
-const initialRecipes = [
+export const initialRecipes = [
   {
     title: "strawberry shortcake",
     picturePath:
@@ -168,7 +163,7 @@ const initialRecipes = [
   },
 ];
 
-const initialUsers = [
+export const initialUser = [
   {
     username: "testuser01",
     firstName: "john",
@@ -184,64 +179,3 @@ const initialUsers = [
     email: "email.com",
   },
 ];
-
-const nonExistingId = async () => {
-  const recipe = new Recipe({
-    title: "strawberry shortcake new version - check if recipe can be added",
-    picturePath:
-      "https://www.google.com/imgres?imgurl=https%3A%2F%2Fimages.ricardocuisine.com%2Fservices%2Frecipes%2F9640.jpg&tbnid=eFe18pfPtTruUM&vet=12ahUKEwjbw9ybiO2BAxWSBzQIHd8WAyoQMygOegUIARCWAQ..i&imgrefurl=https%3A%2F%2Fwww.ricardocuisine.com%2Fen%2Frecipes%2F9640-japanese-strawberry-shortcake&docid=K_d7KXa2YhtFcM&w=1920&h=2592&q=strawberry%20shortcake%20japanese&ved=2ahUKEwjbw9ybiO2BAxWSBzQIHd8WAyoQMygOegUIARCWAQ",
-    servings: "6",
-    steps: [
-      {
-        stepName: "Cake",
-        step: [
-          "In a large bowl, whisk the egg whites with an electric mixer until soft peaks form. Gradually whisk in the sugar until semi-stiff peaks form.",
-          "In another bowl, whisk the egg yolks with the oil and milk. Add the flour. Add one-quarter of the meringue mixture and stir to combine. Using a spatula, gently fold in the remaining meringue. Spread the batter out in the two prepared cake pans.",
-          "Bake for 20 minutes or until a toothpick inserted in the centre of a cake comes out clean. Remove from the oven and immediately turn the cake pans over on a wire rack to cool completely, about 2 hours. Run a thin blade between the side of the pans and the cakes to unmould.",
-        ],
-      },
-    ],
-    ingredients: [
-      {
-        ingredientsFor: "Cake",
-        allIngredients: [
-          {
-            ingredient: "eggs",
-            unit: "none",
-            amount: 3,
-          },
-        ],
-      },
-    ],
-    time: {hours: "1", minutes: "30"},
-    urserId: "498573895",
-    isRecommended: {},
-    comments: [],
-    review: [],
-    tags: ["cake", "strawberry"],
-  });
-
-  await recipe.save();
-  await recipe.remove();
-
-  return recipe._id.toString();
-};
-
-const recipesInDb = async () => {
-  const notes = await Recipe.find({});
-  return notes.map((recipe) => recipe.toJSON());
-};
-
-const usersInDb = async () => {
-  const users = await User.find({});
-  return users.map((user) => user.toJSON());
-};
-
-module.exports = {
-  nonExistingId,
-  recipesInDb,
-  usersInDb,
-  initialRecipes,
-  initialUsers,
-
-};
