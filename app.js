@@ -4,6 +4,7 @@ const app = express();
 const cors = require("cors");
 const logger = require("./utils/logger");
 const mongoose = require("mongoose");
+require("express-async-errors");
 
 const recipeRoutes = require("./routes/recipes");
 const usersRoutes = require("./routes/users");
@@ -32,7 +33,7 @@ app.use("/api/recipe", recipeRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/auth", loginRoutes);
 
-// app.use(middleware.unknownEndpoint);
-// app.use(middleware.errorHandler);
+app.use(middleware.unknownEndpoint);
+app.use(middleware.errorHandler);
 
 module.exports = app;

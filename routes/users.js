@@ -1,13 +1,14 @@
 const express = require("express");
-const { userExtractor } = require("../utils/middleware");
+const { userExtractor, verifyToken } = require("../utils/middleware");
 
 const {
   registerUser,
   getUser,
+  getUsers,
   getUserFollowers,
   getUserFollowings,
   updateUser,
-  addRemoveFollowing,
+  toggleFollowing,
 } = require("../controllers/user");
 
 const router = express.Router();
@@ -15,12 +16,13 @@ const router = express.Router();
 router.post("/", registerUser);
 
 /* READ */
+router.get("/", getUsers);
 router.get("/:userId", getUser);
-router.get("/:id/followers", getUserFollowers);
-router.get("/:id/followings", getUserFollowings);
+router.get("/:userId/followers", getUserFollowers);
+router.get("/:userId/followings", getUserFollowings);
 
 /* UPDATE */
-router.patch("/:id", userExtractor, updateUser);
-router.patch("/user/:followingId", userExtractor, addRemoveFollowing);
+router.patch("/:userId", verifyToken, updateUser);
+router.patch("/user/:userFollowingId", verifyToken, toggleFollowing);
 
 module.exports = router;

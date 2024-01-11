@@ -1,62 +1,34 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+const User = require("../models/user");
+
+const STATUS_CODE = require("../shared/errorCode");
 
 module.exports = {
   login: async (request, response) => {
-    try {
-      const { username, password } = request.body;
-      const user = await User.findOne({ username });
-      console.log(user);
-      if (!user)
-        return response.status(400).json({ error: "User does not exist." });
+    const { username, password } = request.body;
 
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch)
-        return response.status(400).json({ error: "Invalid credentials." });
+    const user = await User.findOne({ username: username });
+    if (!user)
+      return response.status(400).json({ msg: "User does not exist. " });
 
-      const userToken = {
-        username: user.username,
-        id: user._id,
-      };
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch)
+      return response.status(400).json({ msg: "Invalid credentials. " });
 
-      const token = jwt.sign(userToken, process.env.SECRET);
-      delete user.password;
-      response
-        .status(200)
-        .json({ token, username: user.username, name: user.firstName, user });
-    } catch (err) {
-      response.status(500).json({ error: err.message });
-    }
-    // try {
-    //   const { username, password } = request.body;
+    const userForToken = {
+      username: user.username,
+      id: user._id,
+    };
 
-    //   const user = await User.findOne({ username });
-    //   if (!user) {
-    //     return response.status(401).json({
-    //       error: "invalid username or password",
-    //     });
-    //   }
+    const token = jwt.sign(userForToken, process.env.SECRET);
 
-    //   const passwordCorrect = await bcrypt.compare(password, user.passwordHash);
-    //   if (!passwordCorrect) {
-    //     return response.status(401).json({
-    //       error: "invalid username or password",
-    //     });
-    //   }
-
-    //   const userToken = {
-    //     username: user.username,
-    //     id: user._id,
-    //   };
-
-    //   const token = jwt.sign(userToken, process.env.SECRET);
-
-    //   response
-    //     .status(200)
-    //     .send({ token, username: user.username, name: user.name });
-    // } catch (err) {
-    //   response.status(500).json({ error: err.message });
-    // }
+    response.status(STATUS_CODE.OK).send({
+      token,
+      username: user.username,
+      name: user.name,
+      id: user._id,
+      user,
+    });
   },
 };
