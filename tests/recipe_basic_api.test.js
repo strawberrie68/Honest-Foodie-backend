@@ -8,6 +8,7 @@ const Recipe = require("../models/recipe");
 const User = require("../models/user");
 const Comment = require("../models/comment");
 const Review = require("../models/review");
+const STATUS_CODE = require("../shared/errorCode");
 
 let authHeader;
 let userId;
@@ -35,7 +36,7 @@ describe("recipes api", () => {
     test("recipe are returned as json", async () => {
       await api
         .get("/api/recipe")
-        .expect(200)
+        .expect(STATUS_CODE.OK)
         .expect("Content-Type", /application\/json/);
     });
 
