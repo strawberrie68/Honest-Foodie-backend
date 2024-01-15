@@ -5,7 +5,7 @@ const User = require("../../models/user");
 const api = supertest(app);
 const mongoose = require("mongoose");
 
-const { initialRecipes, initialUsers, recipesInDb } = require("../test_helper");
+const {initialRecipes, initialUsers, recipesInDb} = require("../test_helper");
 const STATUS_CODE = require("../../shared/errorCode");
 
 let authHeader;
@@ -43,31 +43,31 @@ describe("recipe api", () => {
     await setup();
   });
 
-  test("should not delete a recipe if the auth header is not valid", async () => {
-    const recipeBefore = await recipesInDb();
+  test("should not delete a recipe when the authorization header is invalid", async () => {
+    let recipes = await recipesInDb();
+    expect(recipes).toHaveLength(1);
 
     await api
       .delete(`/api/recipe/${recipeId}/delete`)
       .expect(STATUS_CODE.NOT_AUTHORIZED);
-    const recipesAfter = await recipesInDb();
-    const recipeIdsAfter = recipesAfter.map((recipe) => recipe._id.toString());
+    recipes = await recipesInDb();
 
-    expect(recipesAfter).toHaveLength(recipeBefore.length);
-    expect(recipeIdsAfter).toContain(recipeId);
+    expect(recipes).toHaveLength(1);
+    expect(recipes[0]._id.toString()).toContain(recipeId);
   });
 
   test("should delete a recipe if the user is the creator", async () => {
-    const recipeBefore = await recipesInDb();
+    let recipes = await recipesInDb();
+    expect(recipes).toHaveLength(1);
 
     await api
       .delete(`/api/recipe/${recipeId}/delete`)
       .set("Authorization", `Bearer ${token}`)
       .expect(STATUS_CODE.NO_CONTENT);
-    const recipesAfter = await recipesInDb();
-    const recipeIdsAfter = recipesAfter.map((recipe) => recipe._id.toString());
+    recipes = await recipesInDb();
 
-    expect(recipeIdsAfter).not.toContain(recipeId);
-    expect(recipesAfter).toHaveLength(recipeBefore.length - 1);
+    expect(recipes).not.toContain(recipeId);
+    expect(recipes).toHaveLength(0);
   });
 
   afterAll(async () => {
