@@ -4,18 +4,25 @@ const User = require("../../models/user");
 const api = supertest(app);
 const mongoose = require("mongoose");
 const {initialUsers} = require("../test_helper");
+const STATUS_CODE = require("../../shared/errorCode");
 
 const USER_API = "/api/users";
 const AUTH_API = "/api/auth/login";
 
 const registerUser = async (user) => {
-  const response = await api.post(USER_API).send(user).expect(201);
+  const response = await api
+    .post(USER_API)
+    .send(user)
+    .expect(STATUS_CODE.CREATED);
   expect(response.body.username).toBe(user.username);
   return response;
 };
 
 const loginUser = async (credentials) => {
-  const response = await api.post(AUTH_API).send(credentials).expect(200);
+  const response = await api
+    .post(AUTH_API)
+    .send(credentials)
+    .expect(STATUS_CODE.OK);
   expect(response.body.token).toBeDefined();
   return response.body.token;
 };
