@@ -5,13 +5,16 @@ const User = require("../../models/user");
 const api = supertest(app);
 const mongoose = require("mongoose");
 
-const { initialRecipes, initialUsers } = require("../test_helper");
+const {initialRecipes, initialUsers} = require("../test_helper");
 const STATUS_CODE = require("../../shared/errorCode");
 
+// User related variables
 let authHeader;
 let userId;
-let recipeId;
 let token;
+
+// Recipe related variables
+let recipeId;
 let testRecipe;
 
 const setup = async () => {
@@ -22,11 +25,18 @@ const setup = async () => {
     .post("/api/auth/login")
     .send(newUser)
     .expect(STATUS_CODE.OK);
-
   token = response.body.token;
   authHeader = `Bearer ${token}`;
   userId = response.body.id;
   testRecipe = initialRecipes[0];
+};
+
+const addRecipe = async (recipe, token) => {
+  const response = await api
+    .post("/api/recipe/add")
+    .set("Authorization", `Bearer ${token}`)
+    .send(recipe);
+  return response.body._id;
 };
 
 describe("READ - recipes", () => {
@@ -40,7 +50,7 @@ describe("READ - recipes", () => {
       await Recipe.insertMany(initialRecipes);
     });
 
-    test("return all recipes are returned", async () => {
+    test("should return all recipes", async () => {
       const response = await api.get("/api/recipe");
       expect(response.body).toHaveLength(initialRecipes.length);
     });
@@ -48,26 +58,22 @@ describe("READ - recipes", () => {
 
   describe("get recipes - with condition", () => {
     beforeEach(async () => {
+      recipeId = await addRecipe(testRecipe, token);
+    });
+
+    test("should return all recipes of a user when given a userId", async () => {
+      const response = await api.get(`/api/recipe/${userId}/recipes`);
+
+      expect(response.body.recipes[0].title).toContain(testRecipe.title);
+    });
+
+    test("should return a recipe when given a recipeId", async () => {
       const response = await api
-        .post("/api/recipe/add")
-        .set("Authorization", authHeader)
-        .send(testRecipe);
-      recipeId = response.body._id;
-    });
-
-    test("All user's recipes - when given a userId", async () => {
-      const newResponse = await api.get(`/api/recipe/${userId}/recipes`);
-
-      expect(newResponse.body.recipes[0].title).toContain(testRecipe.title);
-    });
-
-    test("One recipe - when given a recipeId", async () => {
-      const recipeReturned = await api
         .get(`/api/recipe/${recipeId}`)
         .expect(STATUS_CODE.OK)
         .expect("Content-Type", /application\/json/);
 
-      expect(recipeReturned.body.title).toContain(testRecipe.title);
+      expect(response.body.title).toContain(testRecipe.title);
     });
   });
 
