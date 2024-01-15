@@ -6,15 +6,19 @@ const STATUS_CODE = require("../shared/errorCode");
 
 module.exports = {
   login: async (request, response) => {
-    const { username, password } = request.body;
+    const {username, password} = request.body;
 
-    const user = await User.findOne({ username: username });
+    const user = await User.findOne({username: username});
     if (!user)
-      return response.status(400).json({ msg: "User does not exist. " });
+      return response
+        .status(STATUS_CODE.BAD_REQUEST)
+        .json({msg: "User does not exist. "});
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
-      return response.status(400).json({ msg: "Invalid credentials. " });
+      return response
+        .status(STATUS_CODE.BAD_REQUEST)
+        .json({msg: "Invalid credentials. "});
 
     const userForToken = {
       username: user.username,

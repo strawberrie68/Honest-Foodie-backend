@@ -5,18 +5,24 @@ const User = require("../models/user");
 const STATUS_CODE = require("../shared/errorCode");
 
 const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: "unknown endpoint" });
+  response.status(STATUS_CODE.NOT_FOUND).send({error: "unknown endpoint"});
 };
 
 const errorHandler = (error, request, response, next) => {
   logger.error(error.message);
 
   if (error.name === "CastError") {
-    return response.status(400).send({ error: "malformatted id" });
+    return response
+      .status(STATUS_CODE.BAD_REQUEST)
+      .send({error: "malformatted id"});
   } else if (error.name === "ValidationError") {
-    return response.status(400).json({ error: error.message });
+    return response
+      .status(STATUS_CODE.BAD_REQUEST)
+      .json({error: error.message});
   } else if (error.name === "JsonWebTokenError") {
-    return response.status(400).json({ error: "token missing or invalid" });
+    return response
+      .status(STATUS_CODE.BAD_REQUEST)
+      .json({error: "token missing or invalid"});
   }
 
   next(error);
@@ -30,7 +36,7 @@ const getTokenFrom = (request) => {
   return null;
 };
 
-const tokenExtractor = (request, response, next) => {
+const tokenExtractor = (request, next) => {
   request.token = getTokenFrom(request);
   next();
 };
@@ -41,7 +47,9 @@ const userExtractor = async (request, response, next) => {
   if (token) {
     const decodedToken = jwt.verify(token, process.env.SECRET);
     if (!decodedToken.id) {
-      return response.status(401).json({ error: "token invalid" });
+      return response
+        .status(STATUS_CODE.NOT_AUTHORIZED)
+        .json({error: "token invalid"});
     }
 
     request.user = await User.findById(decodedToken.id);
@@ -71,7 +79,7 @@ const verifyToken = async (request, response, next) => {
   } catch (err) {
     response
       .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
-      .json({ error: err.message });
+      .json({error: err.message});
   }
 };
 
