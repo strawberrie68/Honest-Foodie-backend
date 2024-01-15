@@ -13,6 +13,11 @@ const {
 } = require("../test_helper");
 const STATUS_CODE = require("../../shared/errorCode");
 
+const getProperty = async (endpoint, id, property) => {
+  const response = await api.get(`/${endpoint}/${id}`);
+  return response.body[property];
+};
+
 let authHeader;
 let userId;
 let recipeId;
@@ -22,9 +27,9 @@ describe("recipe api", () => {
   beforeEach(async () => {
     await User.deleteMany({});
     const newUser = initialUsers[1];
-    let response = await api.post("/api/users").send(newUser);
+    await api.post("/api/users").send(newUser);
 
-    response = await api
+    let response = await api
       .post("/api/auth/login")
       .send(newUser)
       .expect(STATUS_CODE.OK);
@@ -32,30 +37,38 @@ describe("recipe api", () => {
     token = response.body.token;
     authHeader = `Bearer ${token}`;
     userId = response.body.id;
+
+    response = await api
+      .post("/api/recipe/add")
+      .set("Authorization", authHeader)
+      .send(recipeToAdd)
+      .expect(STATUS_CODE.CREATED)
+      .expect("Content-Type", /application\/json/);
+
+    recipeId = response.body._id;
   });
 
   describe("add new recipe", () => {
     test("can be added", async () => {
       await Recipe.deleteMany({});
-      const recipe = recipeToAdd;
-      const beforeRecipes = await recipesInDb();
+      let recipes = await recipesInDb();
+      expect(recipes).toHaveLength(0);
 
-      const response = await api
+      response = await api
         .post("/api/recipe/add")
         .set("Authorization", authHeader)
-        .send(recipe)
+        .send(recipeToAdd)
         .expect(STATUS_CODE.CREATED)
         .expect("Content-Type", /application\/json/);
 
-      recipeId = response.body._id;
-
-      const afterRecipes = await recipesInDb();
-      expect(afterRecipes).toHaveLength(beforeRecipes.length + 1);
+      recipes = await recipesInDb();
+      expect(recipes).toHaveLength(1);
     });
 
     describe("a new review", () => {
       test("can be added", async () => {
-        const beforeAddingReview = await api.get(`/api/recipe/${recipeId}`);
+        let reviews = await getProperty("api/recipe", recipeId, "reviews");
+        expect(reviews).toHaveLength(0);
 
         await api
           .post(`/api/recipe/${recipeId}`)
@@ -64,14 +77,13 @@ describe("recipe api", () => {
           .expect(STATUS_CODE.CREATED)
           .expect("Content-Type", /application\/json/);
 
-        const afterAddingReview = await api.get(`/api/recipe/${recipeId}`);
-        expect(afterAddingReview.body.reviews).toHaveLength(
-          beforeAddingReview.body.reviews.length + 1
-        );
+        reviews = await await getProperty("api/recipe", recipeId, "reviews");
+        expect(reviews).toHaveLength(1);
       });
 
       test("is added to user's review", async () => {
-        const beforeAddingReview = await api.get(`/api/users/${userId}`);
+        let user = await getProperty("api/users", userId, "reviews");
+        expect(user).toHaveLength(0);
 
         await api
           .post(`/api/recipe/${recipeId}`)
@@ -80,16 +92,15 @@ describe("recipe api", () => {
           .expect(STATUS_CODE.CREATED)
           .expect("Content-Type", /application\/json/);
 
-        const afterAddingReview = await api.get(`/api/users/${userId}`);
-        expect(afterAddingReview.body.reviews).toHaveLength(
-          beforeAddingReview.body.reviews.length + 1
-        );
+        user = await getProperty("api/users", userId, "reviews");
+        expect(user).toHaveLength(1);
       });
     });
 
     describe("a new comment", () => {
       test("can be added", async () => {
-        const beforeUpdate = await api.get(`/api/recipe/${recipeId}`);
+        let comments = await getProperty("api/recipe", recipeId, "comments");
+        expect(comments).toHaveLength(0);
 
         const comment = {
           text: "hi, my first comment",
@@ -102,14 +113,10 @@ describe("recipe api", () => {
           .send(comment)
           .expect(STATUS_CODE.CREATED)
           .expect("Content-Type", /application\/json/);
+        comments = await getProperty("api/recipe", recipeId, "comments");
 
-        const updatedRecipe = await api.get(`/api/recipe/${recipeId}`);
-        expect(updatedRecipe.body.comments).toHaveLength(
-          beforeUpdate.body.comments.length + 1
-        );
-        expect(updatedRecipe.body.comments[0].text).toContain(
-          "hi, my first comment"
-        );
+        expect(comments).toHaveLength(1);
+        expect(comments[0].text).toContain("hi, my first comment");
       });
 
       test("can not be added when missing info", async () => {
