@@ -8,10 +8,14 @@ const mongoose = require("mongoose");
 const {initialRecipes, initialUsers, recipesInDb} = require("../test_helper");
 const STATUS_CODE = require("../../shared/errorCode");
 
+const {createUserAndLogin, addRecipe} = require("../api_test_helper");
+
 let authHeader;
 let userId;
 let recipeId;
 let token;
+
+const RECIPE_API = "api/recipe";
 
 const setup = async () => {
   await User.deleteMany({});
@@ -19,22 +23,13 @@ const setup = async () => {
   const newUser = initialUsers[1];
   const recipe = initialRecipes[0];
 
-  let response = await api.post("/api/users").send(newUser);
-
-  response = await api
-    .post("/api/auth/login")
-    .send(newUser)
-    .expect(STATUS_CODE.OK);
+  let response = await createUserAndLogin(newUser);
 
   token = response.body.token;
   authHeader = `Bearer ${token}`;
   userId = response.body.id;
 
-  const recipeResponse = await api
-    .post("/api/recipe/add")
-    .set("Authorization", `Bearer ${token}`)
-    .send(recipe);
-
+  const recipeResponse = await addRecipe(recipe, authHeader);
   recipeId = recipeResponse.body._id;
 };
 
@@ -48,7 +43,7 @@ describe("recipe api", () => {
     expect(recipes).toHaveLength(1);
 
     await api
-      .delete(`/api/recipe/${recipeId}/delete`)
+      .delete(`/${RECIPE_API}/${recipeId}/delete`)
       .expect(STATUS_CODE.NOT_AUTHORIZED);
     recipes = await recipesInDb();
 
@@ -61,7 +56,7 @@ describe("recipe api", () => {
     expect(recipes).toHaveLength(1);
 
     await api
-      .delete(`/api/recipe/${recipeId}/delete`)
+      .delete(`/${RECIPE_API}/${recipeId}/delete`)
       .set("Authorization", `Bearer ${token}`)
       .expect(STATUS_CODE.NO_CONTENT);
     recipes = await recipesInDb();
