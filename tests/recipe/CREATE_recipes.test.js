@@ -22,7 +22,6 @@ const {
 } = require("../api_test_helpers");
 
 const RECIPE_API = "api/recipe";
-const USER_API = "api/users";
 
 let authHeader;
 let userId;
@@ -82,7 +81,6 @@ describe("recipe api", () => {
 
     describe("a new comment", () => {
       test("can be added to recipe", async () => {
-        // let comments = await getProperty(`${RECIPE_API}`, recipeId, "comments");
         let comments = (await getRecipe(recipeId)).comments;
         expect(comments).toHaveLength(0);
 
