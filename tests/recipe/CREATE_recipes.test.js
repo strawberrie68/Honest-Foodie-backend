@@ -17,8 +17,9 @@ const {
   createUserAndLogin,
   addRecipe,
   addToRecipe,
-  getProperty,
-} = require("../api_test_helper");
+  getRecipe,
+  getUser,
+} = require("../api_test_helpers");
 
 const RECIPE_API = "api/recipe";
 const USER_API = "api/users";
@@ -57,32 +58,32 @@ describe("recipe api", () => {
 
     describe("a new review", () => {
       test("can be added to recipe", async () => {
-        let reviews = await getProperty(`${RECIPE_API}`, recipeId, "reviews");
-        console.log(reviews);
+        let reviews = (await getRecipe(recipeId)).reviews;
         expect(reviews).toHaveLength(0);
 
         await addToRecipe(recipeId, "review", recipeReview, token);
-        reviews = await getProperty(`${RECIPE_API}`, recipeId, "reviews");
+        reviews = (await getRecipe(recipeId)).reviews;
 
         expect(reviews).toHaveLength(1);
         expect(reviews[0].userReview).toContain(recipeReview.userReview);
       });
 
       test("is added to user's review", async () => {
-        let user = await getProperty(`${USER_API}`, userId, "reviews");
-        expect(user).toHaveLength(0);
+        let reviews = (await getUser(userId)).reviews;
+        expect(reviews).toHaveLength(0);
 
         await addToRecipe(recipeId, "review", recipeReview, token);
-        user = await getProperty(`${USER_API}`, userId, "reviews");
+        reviews = (await getUser(userId)).reviews;
 
-        expect(user).toHaveLength(1);
-        expect(user[0].userReview).toContain(recipeReview.userReview);
+        expect(reviews).toHaveLength(1);
+        expect(reviews[0].userReview).toContain(recipeReview.userReview);
       });
     });
 
     describe("a new comment", () => {
       test("can be added to recipe", async () => {
-        let comments = await getProperty(`${RECIPE_API}`, recipeId, "comments");
+        // let comments = await getProperty(`${RECIPE_API}`, recipeId, "comments");
+        let comments = (await getRecipe(recipeId)).comments;
         expect(comments).toHaveLength(0);
 
         const comment = {
@@ -91,7 +92,7 @@ describe("recipe api", () => {
         };
 
         await addToRecipe(recipeId, "comment", comment, token);
-        comments = await getProperty(`${RECIPE_API}`, recipeId, "comments");
+        comments = (await getRecipe(recipeId)).comments;
 
         expect(comments).toHaveLength(1);
         expect(comments[0].text).toContain(comment.text);

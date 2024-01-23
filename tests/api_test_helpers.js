@@ -29,9 +29,14 @@ const updateRecipe = (recipeId, recipe, token) => {
     .send(recipe);
 };
 
-const getProperty = async (endpoint, id, property) => {
-  const response = await api.get(`/${endpoint}/${id}`);
-  return response.body[property];
+const getRecipe = async (recipeId) => {
+  const response = await api.get(`${RECIPE_API}/${recipeId}`);
+  return response.body;
+};
+
+const getUser = async (userId) => {
+  const response = await api.get(`${USER_API}/${userId}`);
+  return response.body;
 };
 
 const addToRecipe = async (recipeId, item, itemToAdd, token) => {
@@ -48,5 +53,6 @@ module.exports = {
   addRecipe,
   addToRecipe,
   updateRecipe,
-  getProperty,
+  getRecipe,
+  getUser,
 };
