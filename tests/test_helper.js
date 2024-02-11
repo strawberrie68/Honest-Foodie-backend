@@ -6,8 +6,7 @@ const User = require("../models/user");
 
 const testRecipe = {
   title: "strawberry shortcake",
-  picturePath:
-    "https://www.google.com/imgres?imgurl=https%3A%2F%2Fimages.ricardocuisine.com%2Fservices%2Frecipes%2F9640.jpg&tbnid=eFe18pfPtTruUM&vet=12ahUKEwjbw9ybiO2BAxWSBzQIHd8WAyoQMygOegUIARCWAQ..i&imgrefurl=https%3A%2F%2Fwww.ricardocuisine.com%2Fen%2Frecipes%2F9640-japanese-strawberry-shortcake&docid=K_d7KXa2YhtFcM&w=1920&h=2592&q=strawberry%20shortcake%20japanese&ved=2ahUKEwjbw9ybiO2BAxWSBzQIHd8WAyoQMygOegUIARCWAQ",
+  picturePath: "www.shortcake.com",
   servings: "6",
   steps: [
     {
@@ -73,7 +72,7 @@ const testRecipe = {
       ],
     },
   ],
-  time: {hours: "1", minutes: "30"},
+  time: { hours: "1", minutes: "30" },
   tags: ["cake", "strawberry"],
 };
 
@@ -82,8 +81,7 @@ const initialRecipes = [testRecipe, testRecipe, testRecipe];
 const recipeToAdd = {
   ...testRecipe,
   title: "strawberry shortcake ver 5",
-  picturePath:
-    "https://www.google.com/imgres?imgurl=https%3A%2F%2Fimages.ricardocuisine.com%2Fservices%2Frecipes%2F9640.jpg&tbnid=eFe18pfPtTruUM&vet=12ahUKEwjbw9ybiO2BAxWSBzQIHd8WAyoQMygOegUIARCWAQ..i&imgrefurl=https%3A%2F%2Fwww.ricardocuisine.com%2Fen%2Frecipes%2F9640-japanese-strawberry-shortcake&docid=K_d7KXa2YhtFcM&w=1920&h=2592&q=strawberry%20shortcake%20japanese&ved=2ahUKEwjbw9ybiO2BAxWSBzQIHd8WAyoQMygOegUIARCWAQ",
+  picturePath: "www.shortcake.com",
 };
 
 //mock user

@@ -22,13 +22,11 @@ const {
 } = require("../api_test_helpers");
 
 const RECIPE_API = "api/recipe";
+const REVIEW = "review";
+const COMMENT = "comment";
 
-let authHeader;
-let userId;
-let token;
-
-let recipeId;
 describe("recipe api", () => {
+  let token, authHeader, userId, recipeId;
   beforeEach(async () => {
     await User.deleteMany({});
     const newUser = initialUsers[1];
@@ -60,7 +58,7 @@ describe("recipe api", () => {
         let reviews = (await getRecipe(recipeId)).reviews;
         expect(reviews).toHaveLength(0);
 
-        await addToRecipe(recipeId, "review", recipeReview, token);
+        await addToRecipe(recipeId, REVIEW, recipeReview, token);
         reviews = (await getRecipe(recipeId)).reviews;
 
         expect(reviews).toHaveLength(1);
@@ -71,7 +69,7 @@ describe("recipe api", () => {
         let reviews = (await getUser(userId)).reviews;
         expect(reviews).toHaveLength(0);
 
-        await addToRecipe(recipeId, "review", recipeReview, token);
+        await addToRecipe(recipeId, REVIEW, recipeReview, token);
         reviews = (await getUser(userId)).reviews;
 
         expect(reviews).toHaveLength(1);
@@ -89,7 +87,7 @@ describe("recipe api", () => {
           parentId: null,
         };
 
-        await addToRecipe(recipeId, "comment", comment, token);
+        await addToRecipe(recipeId, COMMENT, comment, token);
         comments = (await getRecipe(recipeId)).comments;
 
         expect(comments).toHaveLength(1);
