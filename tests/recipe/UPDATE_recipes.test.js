@@ -1,41 +1,24 @@
+// External libraries
 const supertest = require("supertest");
+const mongoose = require("mongoose");
+
+// Internal modules
 const app = require("../../app");
 const Recipe = require("../../models/recipe");
 const User = require("../../models/user");
-const api = supertest(app);
-const mongoose = require("mongoose");
-
 const { initialUsers, recipesInDb, initialRecipes } = require("../test_helper");
-const STATUS_CODE = require("../../shared/errorCode");
-
-// User related variables
-let authHeader;
-let userId;
-let token;
-
-// Recipe related variables
-let recipeId;
-
 const {
   createUserAndLogin,
   addRecipe,
   updateRecipe,
-} = require("../api_test_helper");
+} = require("../api_test_helpers");
 
-const setup = async () => {
-  await User.deleteMany({});
-  await Recipe.deleteMany({});
-  const newUser = initialUsers[1];
-  const recipe = initialRecipes[0];
-
-  let response = await createUserAndLogin(newUser);
-  token = response.body.token;
-  authHeader = `Bearer ${token}`;
-  userId = response.body.id;
-
-  const recipeResponse = await addRecipe(recipe, authHeader);
-  recipeId = recipeResponse.body._id;
-};
+// Constants
+const api = supertest(app);
+const STATUS_CODE = require("../../shared/errorCode");
+const INVALID_RECIPE_ID = "1234567890";
+const MODIFIED_TITLE = "This title is a modified recipe title";
+const UNMODIFIED_TITLE = "This title should not be updated";
 
 const getRecipesAndTitles = async () => {
   const recipes = await recipesInDb();
@@ -44,8 +27,20 @@ const getRecipesAndTitles = async () => {
 };
 
 describe("recipe api", () => {
-  beforeAll(async () => {
-    await setup();
+  let authHeader, token, recipeId, userId;
+  beforeEach(async () => {
+    await User.deleteMany({});
+    await Recipe.deleteMany({});
+    const newUser = initialUsers[1];
+    const recipe = initialRecipes[0];
+
+    let response = await createUserAndLogin(newUser);
+    token = response.body.token;
+    authHeader = `Bearer ${token}`;
+    userId = response.body.id;
+
+    const recipeResponse = await addRecipe(recipe, authHeader);
+    recipeId = recipeResponse.body._id;
   });
 
   describe("UPDATE - recipes", () => {
@@ -55,7 +50,7 @@ describe("recipe api", () => {
 
       const modifiedRecipe = {
         ...recipes[0],
-        title: "This title is a modified recipe title",
+        title: MODIFIED_TITLE,
       };
 
       await updateRecipe(recipeId, modifiedRecipe, token).expect(
@@ -63,7 +58,7 @@ describe("recipe api", () => {
       );
       ({ recipes, recipeTitles } = await getRecipesAndTitles());
 
-      expect(recipeTitles).toContain(modifiedRecipe.title);
+      expect(recipeTitles).toContain(MODIFIED_TITLE);
       expect(recipes).toHaveLength(1);
     });
 
@@ -71,18 +66,17 @@ describe("recipe api", () => {
       let { recipes, recipeTitles } = await getRecipesAndTitles();
       expect(recipes).toHaveLength(1);
 
-      const invalidRecipeId = "1234567890";
       const modifiedRecipe = {
         ...recipes[0],
-        title: "This title should not be updated",
+        title: UNMODIFIED_TITLE,
       };
 
-      await updateRecipe(invalidRecipeId, modifiedRecipe, token).expect(
+      await updateRecipe(INVALID_RECIPE_ID, modifiedRecipe, token).expect(
         STATUS_CODE.NOT_FOUND
       );
       ({ recipes, recipeTitles } = await getRecipesAndTitles());
 
-      expect(recipeTitles).not.toContain(modifiedRecipe.title);
+      expect(recipeTitles).not.toContain(UNMODIFIED_TITLE);
       expect(recipes).toHaveLength(1);
     });
   });
