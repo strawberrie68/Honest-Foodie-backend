@@ -1,7 +1,6 @@
 const Recipe = require("../models/recipe");
 const User = require("../models/user");
 
-// mock data
 // mock recipe
 
 const testRecipe = {
