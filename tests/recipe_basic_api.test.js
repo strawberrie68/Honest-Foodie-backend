@@ -1,13 +1,14 @@
 const mongoose = require("mongoose");
 const supertest = require("supertest");
 const app = require("../app");
-const {initialRecipes, initialUsers} = require("./test_helper");
+const { initialRecipes, initialUsers } = require("./test_helper");
 
 const api = supertest(app);
-const Recipe = require("../models/Recipe");
-const User = require("../models/User");
-const Comment = require("../models/Comment");
-const Review = require("../models/Review");
+const Recipe = require("../models/recipe");
+const User = require("../models/user");
+const Comment = require("../models/comment");
+const Review = require("../models/review");
+const STATUS_CODE = require("../shared/errorCode");
 
 let authHeader;
 let userId;
@@ -19,9 +20,10 @@ describe("recipes api", () => {
     await Review.deleteMany({});
 
     // create a test user and save the corresponding auth header
-    const user = initialUsers[0];
+    const user = initialUsers[1];
     await api.post("/api/users").send(user);
     const response = await api.post("/api/auth/login").send(user);
+
     userId = response.body.id;
     authHeader = `Bearer ${response.body.token}`;
   });
@@ -34,7 +36,7 @@ describe("recipes api", () => {
     test("recipe are returned as json", async () => {
       await api
         .get("/api/recipe")
-        .expect(200)
+        .expect(STATUS_CODE.OK)
         .expect("Content-Type", /application\/json/);
     });
 
