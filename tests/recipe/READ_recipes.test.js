@@ -13,39 +13,40 @@ const RECIPES = "recipes";
 
 const { createUserAndLogin, addRecipe } = require("../api_test_helpers");
 
-describe("READ - recipes", () => {
-  let token, authHeader, userId, recipeId, testRecipe;
-  beforeEach(async () => {
-    await User.deleteMany({});
-    const newUser = initialUsers[1];
-    let response = await createUserAndLogin(newUser);
+const setupTest = async () => {
+  await User.deleteMany({});
+  const newUser = initialUsers[1];
 
-    token = response.body.token;
-    authHeader = `Bearer ${token}`;
-    userId = response.body.id;
-    testRecipe = initialRecipes[0];
+  let response = await createUserAndLogin(newUser);
+
+  const token = response.body.token;
+  const authHeader = `Bearer ${token}`;
+  const userId = response.body.id;
+  const testRecipe = initialRecipes[0];
+  const recipeResponse = await addRecipe(testRecipe, authHeader);
+  const recipeId = recipeResponse.body._id;
+
+  return { token, authHeader, userId, recipeId, testRecipe };
+};
+
+describe("READ - recipes", () => {
+  beforeEach(async () => {
+    await Recipe.deleteMany({});
+    await Recipe.insertMany(initialRecipes);
   });
 
   describe("get all recipes from the database", () => {
-    beforeEach(async () => {
-      await Recipe.deleteMany({});
-      await Recipe.insertMany(initialRecipes);
-    });
-
     test("should return all recipes", async () => {
+      await setupTest();
       const response = await api.get(RECIPE_API).expect(STATUS_CODE.OK);
 
-      expect(response.body).toHaveLength(initialRecipes.length);
+      expect(response.body).toHaveLength(initialRecipes.length + 1);
     });
   });
 
   describe("get recipes - with condition", () => {
-    beforeEach(async () => {
-      response = await addRecipe(testRecipe, authHeader);
-      recipeId = response.body._id;
-    });
-
     test("should return all recipes of a user when given a userId", async () => {
+      const { userId, testRecipe } = await setupTest();
       const response = await api
         .get(`${RECIPE_API}/${userId}/${RECIPES}`)
         .expect(STATUS_CODE.OK);
@@ -55,6 +56,7 @@ describe("READ - recipes", () => {
     });
 
     test("should return a recipe when given a recipeId", async () => {
+      const { recipeId, testRecipe } = await setupTest();
       const response = await api
         .get(`${RECIPE_API}/${recipeId}`)
         .expect(STATUS_CODE.OK)
