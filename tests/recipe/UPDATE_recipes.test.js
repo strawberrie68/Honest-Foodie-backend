@@ -1,8 +1,6 @@
-// External libraries
 const supertest = require("supertest");
 const mongoose = require("mongoose");
 
-// Internal modules
 const app = require("../../app");
 const Recipe = require("../../models/recipe");
 const User = require("../../models/user");
@@ -13,12 +11,9 @@ const {
   updateRecipe,
 } = require("../api_test_helpers");
 
-// Constants
 const api = supertest(app);
 const STATUS_CODE = require("../../shared/errorCode");
 const INVALID_RECIPE_ID = "1234567890";
-const MODIFIED_TITLE = "This title is a modified recipe title";
-const UNMODIFIED_TITLE = "This title should not be updated";
 
 const setupTest = async () => {
   await User.deleteMany({});
@@ -36,49 +31,57 @@ const setupTest = async () => {
   return { token, authHeader, userId, recipeId };
 };
 
-const getRecipesAndTitles = async () => {
+const getRecipes = async () => {
+  const recipes = await recipesInDb();
+  return { recipes };
+};
+const getRecipeTitles = async () => {
   const recipes = await recipesInDb();
   const recipeTitles = recipes.map((recipe) => recipe.title);
-  return { recipes, recipeTitles };
+  return { recipeTitles };
 };
 
 describe("recipe api", () => {
   describe("UPDATE - recipes", () => {
     test("should UPDATE a recipe when given a VALID recipeId", async () => {
       const { token, recipeId } = await setupTest();
-      let { recipes, recipeTitles } = await getRecipesAndTitles();
+      let { recipes } = await getRecipes();
+      let { recipeTitles } = await getRecipeTitles();
       expect(recipes).toHaveLength(1);
 
       const modifiedRecipe = {
         ...recipes[0],
-        title: MODIFIED_TITLE,
+        title: "This title is a modified recipe title",
       };
 
       await updateRecipe(recipeId, modifiedRecipe, token).expect(
         STATUS_CODE.OK
       );
-      ({ recipes, recipeTitles } = await getRecipesAndTitles());
+      ({ recipes } = await getRecipes()),
+        ({ recipeTitles } = await getRecipeTitles());
 
-      expect(recipeTitles).toContain(MODIFIED_TITLE);
+      expect(recipeTitles).toContain("This title is a modified recipe title");
       expect(recipes).toHaveLength(1);
     });
 
     test("should NOT update a recipe when given a INVALID recipeId", async () => {
       const { token } = await setupTest();
-      let { recipes, recipeTitles } = await getRecipesAndTitles();
+      let { recipes } = await getRecipes();
+      let { recipeTitles } = await getRecipeTitles();
       expect(recipes).toHaveLength(1);
 
       const modifiedRecipe = {
         ...recipes[0],
-        title: UNMODIFIED_TITLE,
+        title: "This title should not be updated",
       };
 
       await updateRecipe(INVALID_RECIPE_ID, modifiedRecipe, token).expect(
         STATUS_CODE.NOT_FOUND
       );
-      ({ recipes, recipeTitles } = await getRecipesAndTitles());
+      ({ recipes } = await getRecipes()),
+        ({ recipeTitles } = await getRecipeTitles());
 
-      expect(recipeTitles).not.toContain(UNMODIFIED_TITLE);
+      expect(recipeTitles).not.toContain("This title should not be updated");
       expect(recipes).toHaveLength(1);
     });
   });
