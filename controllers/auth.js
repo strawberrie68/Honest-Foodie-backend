@@ -7,11 +7,15 @@ const STATUS_CODE = require("../shared/errorCode");
 // Initialize test user if it doesn't exist
 const initializeTestUser = async () => {
   const testUsername = "testuser";
-  const testPassword = "testpassword";
+  const testPassword = "testpassword"; // Matches frontend credentials
 
   try {
     const existingUser = await User.findOne({ username: testUsername });
     if (!existingUser) {
+      // Generate avatar URL using Dicebear API
+      const avatarStyle = "avataaars"; // or "bottts", "pixel-art", "adventurer", etc.
+      const avatarUrl = `https://api.dicebear.com/6.x/${avatarStyle}/svg?seed=${testUsername}`;
+
       const hashedPassword = await bcrypt.hash(testPassword, 10);
       const testUser = new User({
         username: testUsername,
@@ -19,7 +23,7 @@ const initializeTestUser = async () => {
         lastName: "User",
         email: "testuser@example.com",
         password: hashedPassword,
-        picturePath: "",
+        picturePath: avatarUrl,
         flavorProfile: ["Italian", "Asian", "Mexican"],
         caption: "I am a test user",
       });
@@ -31,6 +35,7 @@ const initializeTestUser = async () => {
   }
 };
 
+// Call this when the server starts
 initializeTestUser();
 
 module.exports = {
@@ -50,7 +55,9 @@ module.exports = {
       id: user._id,
     };
 
-    const token = jwt.sign(userForToken, process.env.SECRET);
+    const token = jwt.sign(userForToken, process.env.SECRET, {
+      expiresIn: "30d",
+    });
 
     response.status(STATUS_CODE.OK).send({
       token,
