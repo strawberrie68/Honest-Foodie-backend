@@ -25,12 +25,16 @@ module.exports = {
       const saltRounds = 10;
       const passwordHash = await bcrypt.hash(password, saltRounds);
 
+      const avatarStyle = "avataaars";
+      const avatarUrl = `https://api.dicebear.com/6.x/${avatarStyle}/svg?seed=${username}`;
+
       const user = new User({
         username,
         firstName,
         lastName,
         password: passwordHash,
         email,
+        picturePath: avatarUrl,
       });
 
       const savedUser = await user.save();
